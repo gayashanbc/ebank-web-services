@@ -49,7 +49,7 @@ public class DB_Connection {
         Connection conn = getInstance();
 
         try {
-            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            statement = conn.createStatement();
             rs = statement.executeQuery(query);
             rs.next();
         } catch (Exception e) {
