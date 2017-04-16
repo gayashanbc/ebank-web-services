@@ -24,10 +24,11 @@ import javax.jws.WebParam;
 public class EmployeeService {
 
     /**
-     * Web service operation
+     * Validate login credentials of a particular employee
      *
      * @param username username to be validated
      * @param password password to be validated
+     * @return whether the credentials are valid
      */
     @WebMethod(operationName = "validateLogin")
     public boolean validateLogin(@WebParam(name = "username") String username, @WebParam(name = "password") String password) {
@@ -38,11 +39,11 @@ public class EmployeeService {
         try {
             fetchedPassword = DB_Result.getString("password");
             System.out.println(fetchedPassword);
-        } catch (Exception ex) {
+        } catch (Exception ex) { // no such user in the database
             Logger.getLogger(EmployeeService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (password.equals(fetchedPassword)) {
-            try {
+        if (password.equals(fetchedPassword)) { // credentials matched
+            try { // update loggedIn status
                 query = "UPDATE ebank_employee SET isLoggedIn=1 WHERE username = ?";
                 PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
                 pst.setString(1, username);
@@ -56,9 +57,10 @@ public class EmployeeService {
     }
 
     /**
-     * Web service operation
+     * Logout an employee
      *
      * @param username user to be logged out
+     * @return whether the operation succeed
      */
     @WebMethod(operationName = "logout")
     public boolean logout(@WebParam(name = "username") String username) {
@@ -66,7 +68,7 @@ public class EmployeeService {
         ResultSet DB_Result = DB_Connection.fetchData(query);
         try {
             int isLoggedIn = DB_Result.getInt("isLoggedIn");
-            if (isLoggedIn == 0) {
+            if (isLoggedIn == 0) { // user is currently not logged in
                 return false;
             } else {
                 query = "UPDATE ebank_employee SET isLoggedIn=0 WHERE username = ?";
@@ -82,7 +84,9 @@ public class EmployeeService {
     }
 
     /**
-     * Web service operation
+     * Delete an employee record from the database
+     * @param employeeId employeeId of the employee that needs to be deleted
+     * @return whether the operation succeed
      */
     @WebMethod(operationName = "deleteEmployee")
     public boolean deleteEmployee(@WebParam(name = "employeeId") int employeeId) {
@@ -100,7 +104,7 @@ public class EmployeeService {
     }
 
     /**
-     * Web service operation
+     * Get employeeId and name of each employee from the database
      *
      * @return employee records
      */
@@ -111,7 +115,7 @@ public class EmployeeService {
             String query = "SELECT employeeId,name FROM ebank_employee";
             ResultSet DB_Result = DB_Connection.fetchData(query);
 
-            do {
+            do { // add records to an ArrayList
                 String[] data = new String[2];
                 data[0] = DB_Result.getInt("employeeId") + "";
                 data[1] = DB_Result.getString("name");
@@ -125,7 +129,7 @@ public class EmployeeService {
     }
 
     /**
-     * Web service operation
+     * Get details of a particular employee
      *
      * @param employeeId record to be retrieved
      * @return employee details
@@ -151,14 +155,20 @@ public class EmployeeService {
     }
 
     /**
-     * Web service operation
+     * Add/Edit employee record to/from the database
+     * @param employeeId
+     * @param name
+     * @param position
+     * @param username
+     * @param password
+     * @return whether the operation succeed
      */
     @WebMethod(operationName = "addEditEmployee")
     public boolean addEditEmployee(@WebParam(name = "employeeId") int employeeId, @WebParam(name = "name") String name, @WebParam(name = "position") String position, @WebParam(name = "username") String username, @WebParam(name = "password") String password) {
         String query = "";
         boolean isSuccess = false;
         try {
-            if (employeeId == 0) {
+            if (employeeId == 0) { // new employee record
                 query = "INSERT INTO ebank_employee(name,position,username,password) VALUES(?,?,?,?)";
                 PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
                 pst.setString(1, name);
@@ -167,7 +177,7 @@ public class EmployeeService {
                 pst.setString(4, password);
                 DB_Connection.runQuery(pst);
                 isSuccess = true;
-            } else {
+            } else { // edit an existing employee record
                 query = "UPDATE ebank_employee SET name=?,position=?,username=?,password=? WHERE employeeId = ?";
                 PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
                 pst.setString(1, name);

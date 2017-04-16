@@ -25,9 +25,9 @@ import javax.jws.WebParam;
 public class CustomerService {
 
     /**
-     * Web service operation
+     * Get the names and numbers of all customers in the database
      *
-     * @return customer records
+     * @return database records
      */
     @WebMethod(operationName = "getCustomers")
     public ArrayList<String> getCustomers() {
@@ -36,7 +36,7 @@ public class CustomerService {
             String query = "SELECT name,accountNo FROM ebank_customer";
             ResultSet DB_Result = DB_Connection.fetchData(query);
 
-            do {
+            do { // add records to an ArrayList
                 String[] data = new String[2];
                 data[0] = DB_Result.getString("name") + "";
                 data[1] = DB_Result.getString("accountNo");
@@ -50,7 +50,10 @@ public class CustomerService {
     }
 
     /**
-     * Web service operation
+     * Delete a customer from the database
+     *
+     * @param accountNo accountNo of the customer to be deleted
+     * @return whether the operation succeed
      */
     @WebMethod(operationName = "deleteCustomer")
     public boolean deleteCustomer(@WebParam(name = "accountNo") String accountNo) {
@@ -60,7 +63,7 @@ public class CustomerService {
             PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
             pst.setString(1, accountNo);
             DB_Connection.runQuery(pst);
-            isValid = true;
+            isValid = true; // query executed successfully
         } catch (Exception ex) {
             Logger.getLogger(EmployeeService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -68,10 +71,10 @@ public class CustomerService {
     }
 
     /**
-     * Web service operation
+     * Get details of a particular customer
      *
-     * @param accountNo
-     * @return customer
+     * @param accountNo accountNo of the customer
+     * @return customer details
      */
     @WebMethod(operationName = "getCustomer")
     public String[] getCustomer(@WebParam(name = "customerId") String accountNo) {
@@ -94,14 +97,27 @@ public class CustomerService {
     }
 
     /**
-     * Web service operation
+     * Add/Edit a customer record to/from the database
+     *
+     * @param customerId
+     * @param name
+     * @param birthdate
+     * @param address
+     * @param mobile
+     * @param email
+     * @param type
+     * @param accountNo
+     * @param sortCode
+     * @param balance
+     * @param card
+     * @return whether the operation succeed
      */
     @WebMethod(operationName = "addEditCustomer")
     public boolean addEditCustomer(@WebParam(name = "customerId") int customerId, @WebParam(name = "name") String name, @WebParam(name = "birthdate") String birthdate, @WebParam(name = "address") String address, @WebParam(name = "mobile") String mobile, @WebParam(name = "email") String email, @WebParam(name = "type") String type, @WebParam(name = "accountNo") String accountNo, @WebParam(name = "sortCode") String sortCode, @WebParam(name = "balance") String balance, @WebParam(name = "card") String card) {
         String query = "";
         boolean isSuccess = false;
         try {
-            if (customerId == 0) {
+            if (customerId == 0) { // new customer record
                 query = "INSERT INTO ebank_customer(name,birthdate,address,mobile,email,type,accountNo,sortCode,balance,card) VALUES(?,?,?,?,?,?,?,?,?,?)";
                 PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
                 pst.setString(1, name);
@@ -115,8 +131,8 @@ public class CustomerService {
                 pst.setString(9, balance);
                 pst.setString(10, card);
                 DB_Connection.runQuery(pst);
-                isSuccess = true;
-            } else {
+                isSuccess = true; // query was successful
+            } else { // update an existing customer
                 query = "UPDATE ebank_customer SET name=?,birthdate=?,address=?,mobile=?,email=?,type=?,accountNo=?,sortCode=?,balance=?,card=? WHERE customerId = ?";
                 PreparedStatement pst = DB_Connection.getInstance().prepareStatement(query);
                 pst.setString(1, name);
@@ -131,7 +147,7 @@ public class CustomerService {
                 pst.setString(10, card);
                 pst.setInt(11, customerId);
                 DB_Connection.runQuery(pst);
-                isSuccess = true;
+                isSuccess = true; // query was successful
             }
 
         } catch (Exception ex) {

